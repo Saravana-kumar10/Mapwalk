@@ -230,6 +230,17 @@ class _mtrackState extends State<mtrack> {
               Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Align(
+                    alignment: Alignment.topRight,
+                    child: FloatingActionButton(
+                      onPressed: _onMapType,
+                      child: const Icon(Icons.change_circle),
+                    ),
+
+                  )
+              ),
+              Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Align(
                     alignment: Alignment.topCenter,
                     child: FloatingActionButton(
                       onPressed:(){
