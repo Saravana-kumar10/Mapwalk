@@ -38,7 +38,7 @@ class _mtrackState extends State<mtrack> {
   List<LatLng> polylinevertices=[];
 
   Set<Marker> _markers={};
-  late Position position;
+
 
   LatLng showLocation =  LatLng(11.004556, 76.961632);
 
@@ -46,6 +46,34 @@ class _mtrackState extends State<mtrack> {
 
 
   var dist,km,rearea,acre;
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled');
+    }
+
+    permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+
+      if (permission == LocationPermission.denied) {
+        return Future.error("Location permission denied");
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error('Location permissions are permanently denied');
+    }
+
+    Position position = await Geolocator.getCurrentPosition();
+
+    return position;
+  }
 
 
 
@@ -190,6 +218,24 @@ class _mtrackState extends State<mtrack> {
           : MapType.normal;
     });
   }
+  getLocation() async {
+    Position position = await _determinePosition();
+
+
+    _markers.clear();
+    _markers.add(Marker(
+        markerId:  MarkerId(position.toString()),
+        position: LatLng(position.latitude, position.longitude)));
+    CameraPosition cameraPosition = new CameraPosition(
+      target: LatLng(position.latitude, position.longitude),
+      zoom: 24,
+    );
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
+    setState(() {});
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -219,21 +265,10 @@ class _mtrackState extends State<mtrack> {
               Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Align(
-                    alignment: Alignment.topRight,
+                    alignment: Alignment.topCenter,
                     child: FloatingActionButton(
-                      onPressed: _onMapType,
-                      child: const Icon(Icons.change_circle),
-                    ),
-
-                  )
-              ),
-              Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Align(
-                    alignment: Alignment.topRight,
-                    child: FloatingActionButton(
-                      onPressed: _onMapType,
-                      child: const Icon(Icons.change_circle),
+                      onPressed:_onMapType,
+                      child:   Icon(Icons.change_circle),
                     ),
 
                   )
@@ -357,7 +392,39 @@ class _mtrackState extends State<mtrack> {
 
                   )
               ),
+              Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: FloatingActionButton(
+                      onPressed:() async {
+                        Position position = await _determinePosition();
 
+
+                        _markers.clear();
+                        _markers.add(Marker(
+                            markerId:  MarkerId(position.toString()),
+                            position: LatLng(position.latitude, position.longitude)));
+                        CameraPosition cameraPosition = new CameraPosition(
+                          target: LatLng(position.latitude, position.longitude),
+                          zoom: 24,
+                        );
+                        final GoogleMapController controller = await _controller.future;
+                        controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
+                        setState(() {});
+                      }
+                      ,
+                      child: Column(
+                        children: [
+                          const Icon(Icons.location_on),
+                          Text("current location")
+                        ],
+                      ),
+                    ),
+
+                  )
+              ),
 
             ],)
 

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mapwalk/locator.dart';
-import 'package:mapwalk/check.dart';
+import 'package:mapwalk/walkcalc.dart';
+
 import 'package:responsive_framework/responsive_wrapper.dart';
+
 
 import 'map.dart';
 
@@ -52,7 +53,7 @@ class MyApp extends StatelessWidget {
           ResponsiveBreakpoint.autoScale(450, name: DESKTOP),
         ],
       ),
-      home: mtrack(),
+      home:  mtrack(),
     );
   }
 }
